@@ -7,7 +7,7 @@ require 'pry'
 require 'colorize'
 require 'csv'
 
-url = 'http://www.nahu.org/consumer/findagent3.cfm?State=NV'
+url = 'http://www.nahu.org/consumer/findagent3.cfm?State=NE'
 
 # state acronym from URL
 state_acronym = url.slice(-2..-1).downcase
@@ -60,7 +60,6 @@ CSV.open(filename_path, 'wb') do |csv|
     # -----------------------------------------------------------
     # Get new page load to retrieve new random set set of brokers
     # -----------------------------------------------------------
-    url = 'http://www.nahu.org/consumer/findagent3.cfm?State=NV'
     page = Nokogiri::HTML(open(url)).css('*').remove_attr('style')
 
 

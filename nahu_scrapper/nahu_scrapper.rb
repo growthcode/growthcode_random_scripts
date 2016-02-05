@@ -7,7 +7,9 @@ require 'pry'
 require 'colorize'
 require 'csv'
 
-url = 'http://www.nahu.org/consumer/findagent3.cfm?State=DE'
+# skipped # => tn,
+
+url = 'http://www.nahu.org/consumer/findagent3.cfm?State=wy'
 
 # state acronym from URL
 state_acronym = url.slice(-2..-1).downcase
@@ -42,6 +44,16 @@ def is_numeric?(string)
   !!Kernel.Float(string)
 rescue TypeError, ArgumentError
   false
+end
+
+class Object
+  def blank?
+    respond_to?(:empty?) ? empty? : !self
+  end
+
+  def present?
+    !blank?
+  end
 end
 
 count = 0
@@ -122,7 +134,7 @@ CSV.open(filename_path, 'wb') do |csv|
 
       company = company_address.shift
 
-      if is_numeric?(company_address.last[-5..-1])
+      if company_address.present? && is_numeric?(company_address.last[-5..-1])
         city, state_zip = company_address.pop.split(', ')
         state = state_zip.split(' ').shift.strip
 

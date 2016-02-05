@@ -7,7 +7,7 @@ require 'pry'
 require 'colorize'
 require 'csv'
 
-url = 'http://www.nahu.org/consumer/findagent3.cfm?State=NE'
+url = 'http://www.nahu.org/consumer/findagent3.cfm?State=DE'
 
 # state acronym from URL
 state_acronym = url.slice(-2..-1).downcase
@@ -26,11 +26,16 @@ page = Nokogiri::HTML(open(url)).css('*').remove_attr('style')
 filename_path = "#{`pwd`.chomp}/#{filename}.csv"
 
 string = page.css('body div.container div.contentContainer p b').text
-pre_string = "Please note:Displaying 20 people of"
-post_string = " found."
+over_20_pre_string = "Please note:Displaying 20 people of"
+over_20_post_string = " found."
 
-num_of_contacts = string.gsub(pre_string, '').gsub(post_string, '').to_i
+pre_under_21_string = "Displaying "
+post_under_21_string = " people."
 
+over_20 = string.gsub(over_20_pre_string, '').gsub(over_20_post_string, '').to_i
+under_21 = string.gsub(pre_under_21_string, '').gsub(post_under_21_string, '').to_i
+
+num_of_contacts = (over_20 > under_21) ? over_20 : under_21
 
 def is_numeric?(string)
   # `!!` converts parsed number to `true`
@@ -61,7 +66,6 @@ CSV.open(filename_path, 'wb') do |csv|
     # Get new page load to retrieve new random set set of brokers
     # -----------------------------------------------------------
     page = Nokogiri::HTML(open(url)).css('*').remove_attr('style')
-
 
     contact_blocks = page.css('body div.container div.contentContainer > div')
 
@@ -165,7 +169,7 @@ CSV.open(filename_path, 'wb') do |csv|
         email = "__no_email__#{count}"
       end
 
-      if !email_ary.include?(email) #|| name_ary.include?(name)
+      if !name_ary.include?(name) #|| name_ary.include?(name)
 
         name_ary << name
         email_ary << email
